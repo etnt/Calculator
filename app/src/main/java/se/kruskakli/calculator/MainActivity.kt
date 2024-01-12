@@ -10,6 +10,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
@@ -25,10 +27,13 @@ class MainActivity : ComponentActivity() {
             CalculatorTheme(darkTheme = true) {
                 val viewModel = viewModel<CalculatorViewModel>()
                 val state = viewModel.state
+                val xstate = remember { mutableStateOf(CalculateEngine()) }
                 val buttonSpacing = 8.dp
                 Calculator(
                     state = state,
+                    xstate = xstate,
                     onAction = viewModel::onAction,
+                    xonAction = { xstate.value.enterChar(it) },
                     buttonSpacing = buttonSpacing,
                     modifier = Modifier
                         .fillMaxSize()

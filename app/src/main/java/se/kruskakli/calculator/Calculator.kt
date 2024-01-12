@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -27,9 +28,11 @@ import se.kruskakli.calculator.ui.theme.Orange
 @Composable
 fun Calculator(
     state: CalculatorState,
+    xstate: MutableState<CalculateEngine>,
     modifier: Modifier = Modifier,  // Note: optional with a default value
     buttonSpacing: Dp = 8.dp,
-    onAction: (CalculatorAction) -> Unit
+    onAction: (CalculatorAction) -> Unit,
+    xonAction: (Char) -> Unit
 ) {
     Box(modifier = Modifier
         .background(MediumGray)
@@ -42,7 +45,8 @@ fun Calculator(
             verticalArrangement = Arrangement.spacedBy(buttonSpacing)
         ) {
             Text(
-                text = state.number1 + (state.operation?.symbol ?: "") + state.number2,
+                //text = state.number1 + (state.operation?.symbol ?: "") + state.number2,
+                text = xstate.value.getExpression(),
                 textAlign = TextAlign.End,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -102,6 +106,7 @@ fun Calculator(
                         .weight(1f),
                     onClick = {
                         onAction(CalculatorAction.Number(7))
+                        xonAction('7')
                     }
                 )
                 CalculatorButton(
@@ -275,13 +280,3 @@ fun Calculator(
     }
 }
 
-@Preview
-@Composable
-fun CalculatorPreview () {
-    Calculator(
-        CalculatorState("1","2"),
-        Modifier.fillMaxSize(),
-        8.dp,
-        {}
-    )
-}
