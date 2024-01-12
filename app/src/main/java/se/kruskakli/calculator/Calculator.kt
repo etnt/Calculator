@@ -65,8 +65,8 @@ fun Calculator(
                     symbol = "AC",
                     modifier = Modifier
                         .background(LightGray)
-                        .aspectRatio(2f)  // twice as wide as high!
-                        .weight(2f),  // the other buttons has weight 1f, hence this button will occupy more space
+                        .aspectRatio(1f)
+                        .weight(1f),
                     onClick = {
                         onAction(CalculatorAction.Clear)
                     }
@@ -79,6 +79,17 @@ fun Calculator(
                         .weight(1f),
                     onClick = {
                         onAction(CalculatorAction.Delete)
+                    }
+                )
+                CalculatorButton(
+                    symbol = "\u03C0",  // PI
+                    modifier = Modifier
+                        .background(LightGray)
+                        .aspectRatio(1f)
+                        .weight(1f),
+                    onClick = {
+                        onAction(CalculatorAction.Pi)
+                        xonAction(CalculatorAction.Pi)
                     }
                 )
                 CalculatorButton(

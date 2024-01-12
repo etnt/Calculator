@@ -17,6 +17,7 @@ class CalculateEngine {
     fun onAction(action: CalculatorAction) {
         when(action) {
             is CalculatorAction.Number -> enterNumber(action.number)
+            is CalculatorAction.Pi -> enterPi()
             is CalculatorAction.Decimal -> enterDecimal()
             is CalculatorAction.Clear -> doReset()
             is CalculatorAction.Operation -> enterOperation(action.operation)
@@ -24,6 +25,8 @@ class CalculateEngine {
             is CalculatorAction.Delete -> performDeletion()
         }
     }
+
+
 
     private fun performDeletion() {
 
@@ -72,6 +75,11 @@ class CalculateEngine {
     private fun enterNumber(digit: Int) {
         val char: Char = '0' + digit
         expression += char
+        display += expression
+    }
+
+    private fun enterPi() {
+        expression += "3.1416"
         display += expression
     }
 

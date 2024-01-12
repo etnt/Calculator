@@ -22,12 +22,17 @@ class CalculatorViewModel: ViewModel() {
     fun onAction(action: CalculatorAction) {
         when(action) {
             is CalculatorAction.Number -> enterNumber(action.number)
+            is CalculatorAction.Pi -> enterPi()
             is CalculatorAction.Decimal -> enterDecimal()
             is CalculatorAction.Clear -> state = CalculatorState()
             is CalculatorAction.Operation -> enterOperation(action.operation)
             is CalculatorAction.Calculate -> performCalculation()
             is CalculatorAction.Delete -> performDeletion()
         }
+    }
+
+    private fun enterPi() {
+
     }
 
     private fun performDeletion() {
