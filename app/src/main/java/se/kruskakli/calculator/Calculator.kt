@@ -32,7 +32,7 @@ fun Calculator(
     modifier: Modifier = Modifier,  // Note: optional with a default value
     buttonSpacing: Dp = 8.dp,
     onAction: (CalculatorAction) -> Unit,
-    xonAction: (Char) -> Unit
+    xonAction: (CalculatorAction) -> Unit
 ) {
     Box(modifier = Modifier
         .background(MediumGray)
@@ -46,7 +46,7 @@ fun Calculator(
         ) {
             Text(
                 //text = state.number1 + (state.operation?.symbol ?: "") + state.number2,
-                text = xstate.value.getExpression(),
+                text = xstate.value.getExpr(),
                 textAlign = TextAlign.End,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -106,7 +106,7 @@ fun Calculator(
                         .weight(1f),
                     onClick = {
                         onAction(CalculatorAction.Number(7))
-                        xonAction('7')
+                        xonAction(CalculatorAction.Number(7))
                     }
                 )
                 CalculatorButton(
@@ -118,6 +118,7 @@ fun Calculator(
                         .weight(1f),
                     onClick = {
                         onAction(CalculatorAction.Number(8))
+                        xonAction(CalculatorAction.Number(8))
                     }
                 )
                 CalculatorButton(
@@ -139,6 +140,7 @@ fun Calculator(
                         .weight(1f),
                     onClick = {
                         onAction(CalculatorAction.Operation(CalculatorOperation.Multiply))
+                        xonAction(CalculatorAction.Operation(CalculatorOperation.Multiply))
                     }
                 )
             }

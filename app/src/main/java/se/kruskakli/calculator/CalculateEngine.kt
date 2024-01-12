@@ -1,16 +1,114 @@
 package se.kruskakli.calculator
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableStateOf
+import java.util.Stack
+
+
 class CalculateEngine {
+    //private var display = ""
+    var display by mutableStateOf("")
+        private set
     private var expression = ""
-    //private val numbers = Stack<Double>()
-    //private val operations = Stack<Char>()
+    private var numbers = Stack<Double>()
+    private var operations = Stack<Char>()
+
+    fun onAction(action: CalculatorAction) {
+        when(action) {
+            is CalculatorAction.Number -> enterNumber(action.number)
+            is CalculatorAction.Decimal -> enterDecimal()
+            is CalculatorAction.Clear -> doReset()
+            is CalculatorAction.Operation -> enterOperation(action.operation)
+            is CalculatorAction.Calculate -> performCalculation()
+            is CalculatorAction.Delete -> performDeletion()
+        }
+    }
+
+    private fun performDeletion() {
+
+    }
+
+    private fun performCalculation() {
+
+    }
+
+    private fun enterOperation(operation: CalculatorOperation) {
+        val op : Char
+
+        // Push the incoming operation on to the operations stack.
+        when(operation) {
+            is CalculatorOperation.Add -> op = '+'
+            is CalculatorOperation.Subtract -> op = '-'
+            is CalculatorOperation.Multiply -> op = '*'
+            is CalculatorOperation.Divide -> op = '/'
+        }
+
+        // If we have collected a number, turn it into a Double
+        // and push it on to the numbers stack.
+        if (!expression.isEmpty()) {
+            val number = expression.toDouble()
+            numbers.push(number)
+            expression = ""
+        }
+
+        while (!operations.isEmpty() && hasPrecedence(operations.peek(), op) && numbers.size >= 2) {
+            processOperation()
+        }
+
+        display = (numbers.peek().toString() + op).also { it }
+        operations.push(op)
+
+    }
+
+    private fun doReset() {
+
+    }
+
+    private fun enterDecimal() {
+
+    }
+
+    private fun enterNumber(digit: Int) {
+        val char: Char = '0' + digit
+        expression += char
+        display += expression
+    }
 
     fun enterChar(c: Char) {
         expression += c
     }
 
-    fun getExpression() : String {
-        return expression
+    fun getExpr() : String {
+        return display
+    }
+
+    private fun processOperation() {
+        val operator = operations.pop()
+        val right = numbers.pop()
+        val left = numbers.pop()
+
+        val result = when (operator) {
+            '+' -> left + right
+            '-' -> left - right
+            '*' -> left * right
+            '/' -> {
+                if (right == 0.0) throw ArithmeticException("Division by zero")
+                left / right
+            }
+            else -> throw IllegalArgumentException("Invalid operator: '$operator'")
+        }
+        numbers.push(result)
+    }
+
+    private fun hasPrecedence(op1: Char, op2: Char): Boolean {
+        if (op2 == '(' || op2 == ')')
+            return false
+        if ((op1 == '*' || op1 == '/') && (op2 == '+' || op2 == '-'))
+            return true
+        if (op1 == op2)
+            return true
+        return false
     }
 
     /*

@@ -33,7 +33,7 @@ class MainActivity : ComponentActivity() {
                     state = state,
                     xstate = xstate,
                     onAction = viewModel::onAction,
-                    xonAction = { xstate.value.enterChar(it) },
+                    xonAction = { xstate.value.onAction(it) },
                     buttonSpacing = buttonSpacing,
                     modifier = Modifier
                         .fillMaxSize()
