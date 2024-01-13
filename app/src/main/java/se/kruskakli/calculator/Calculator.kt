@@ -54,7 +54,7 @@ fun Calculator(
                     .fillMaxWidth()
                     .padding(vertical = 32.dp),
                 fontWeight = FontWeight.Light,
-                fontSize = 80.sp,
+                fontSize = 70.sp,
                 color = Color.White,
                 maxLines = 2
             )
@@ -71,6 +71,7 @@ fun Calculator(
                         .weight(1f),
                     onClick = {
                         onAction(CalculatorAction.Clear)
+                        xonAction(CalculatorAction.Clear)
                     }
                 )
                 CalculatorButton(
@@ -81,6 +82,7 @@ fun Calculator(
                         .weight(1f),
                     onClick = {
                         onAction(CalculatorAction.Delete)
+                        xonAction(CalculatorAction.Delete)
                     }
                 )
                 CalculatorButton(
@@ -108,10 +110,11 @@ fun Calculator(
                         .aspectRatio(1f)
                         .weight(1f),
                     onClick = {
+                        onAction(CalculatorAction.Operation(CalculatorOperation.Divide))
                         if (xstate.value.isShifted) {
-                            onAction(CalculatorAction.Pi)
+                            xonAction(CalculatorAction.Pi)
                         } else {
-                            onAction(CalculatorAction.Operation(CalculatorOperation.Divide))
+                            xonAction(CalculatorAction.Operation(CalculatorOperation.Divide))
                         }
                     }
                 )
@@ -154,6 +157,7 @@ fun Calculator(
                         .weight(1f),
                     onClick = {
                         onAction(CalculatorAction.Number(9))
+                        xonAction(CalculatorAction.Number(9))
                     }
                 )
                 CalculatorButton(
@@ -166,7 +170,11 @@ fun Calculator(
                         .weight(1f),
                     onClick = {
                         onAction(CalculatorAction.Operation(CalculatorOperation.Multiply))
-                        xonAction(CalculatorAction.Operation(CalculatorOperation.Multiply))
+                        if (xstate.value.isShifted) {
+                            xonAction(CalculatorAction.Operation(CalculatorOperation.OneOverX))
+                        } else {
+                            xonAction(CalculatorAction.Operation(CalculatorOperation.Multiply))
+                        }
                     }
                 )
             }
@@ -184,6 +192,7 @@ fun Calculator(
                         .weight(1f),
                     onClick = {
                         onAction(CalculatorAction.Number(4))
+                        xonAction(CalculatorAction.Number(4))
                     }
                 )
                 CalculatorButton(
@@ -195,6 +204,7 @@ fun Calculator(
                         .weight(1f),
                     onClick = {
                         onAction(CalculatorAction.Number(5))
+                        xonAction(CalculatorAction.Number(5))
                     }
                 )
                 CalculatorButton(
@@ -206,6 +216,7 @@ fun Calculator(
                         .weight(1f),
                     onClick = {
                         onAction(CalculatorAction.Number(6))
+                        xonAction(CalculatorAction.Number(6))
                     }
                 )
                 CalculatorButton(
@@ -218,6 +229,11 @@ fun Calculator(
                         .weight(1f),
                     onClick = {
                         onAction(CalculatorAction.Operation(CalculatorOperation.Subtract))
+                        if (xstate.value.isShifted) {
+                            xonAction(CalculatorAction.Operation(CalculatorOperation.PowerOfTwo))
+                        } else {
+                            xonAction(CalculatorAction.Operation(CalculatorOperation.Subtract))
+                        }
                     }
                 )
             }
@@ -235,6 +251,7 @@ fun Calculator(
                         .weight(1f),
                     onClick = {
                         onAction(CalculatorAction.Number(1))
+                        xonAction(CalculatorAction.Number(1))
                     }
                 )
                 CalculatorButton(
@@ -246,6 +263,7 @@ fun Calculator(
                         .weight(1f),
                     onClick = {
                         onAction(CalculatorAction.Number(2))
+                        xonAction(CalculatorAction.Number(2))
                     }
                 )
                 CalculatorButton(
@@ -257,6 +275,7 @@ fun Calculator(
                         .weight(1f),
                     onClick = {
                         onAction(CalculatorAction.Number(3))
+                        xonAction(CalculatorAction.Number(3))
                     }
                 )
                 CalculatorButton(
@@ -269,6 +288,11 @@ fun Calculator(
                         .weight(1f),
                     onClick = {
                         onAction(CalculatorAction.Operation(CalculatorOperation.Add))
+                        if (xstate.value.isShifted) {
+                            xonAction(CalculatorAction.Operation(CalculatorOperation.SquareRoot))
+                        } else {
+                            xonAction(CalculatorAction.Operation(CalculatorOperation.Add))
+                        }
                     }
                 )
             }
@@ -285,6 +309,7 @@ fun Calculator(
                         .weight(2f),  // the other buttons has weight 1f, hence this button will occupy more space
                     onClick = {
                         onAction(CalculatorAction.Number(0))
+                        xonAction(CalculatorAction.Number(0))
                     }
                 )
                 CalculatorButton(
@@ -305,6 +330,7 @@ fun Calculator(
                         .weight(1f),
                     onClick = {
                         onAction(CalculatorAction.Calculate)
+                        xonAction(CalculatorAction.Calculate)
                     }
                 )
             }

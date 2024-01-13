@@ -4,6 +4,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
 import java.util.Stack
+import kotlin.math.sqrt
 
 
 class CalculateEngine {
@@ -35,7 +36,11 @@ class CalculateEngine {
     }
 
     private fun performCalculation() {
-
+        maybe_push_number()
+        while (!operations.isEmpty() && numbers.size >= 2) {
+            processOperation()
+        }
+        display = (numbers.peek().toString()).also { it }
     }
 
     private fun enterOperation(operation: CalculatorOperation) {
@@ -46,10 +51,22 @@ class CalculateEngine {
             is CalculatorOperation.Subtract -> op = '-'
             is CalculatorOperation.Multiply -> op = '*'
             is CalculatorOperation.Divide -> op = '/'
+            is CalculatorOperation.PowerOfTwo -> {
+                power_of_two()
+                return
+            }
+            is CalculatorOperation.OneOverX -> {
+                one_over_x()
+                return
+            }
+            is CalculatorOperation.SquareRoot -> {
+                square_root()
+                return
+            }
 
             // FIXME!
             is CalculatorOperation.SquareRoot -> op = ' '
-            is CalculatorOperation.PowerOf -> op = ' '
+
             is CalculatorOperation.Factorial -> op = ' '
             is CalculatorOperation.Percent -> op = ' '
             is CalculatorOperation.LogBaseE -> op = ' '
@@ -63,6 +80,33 @@ class CalculateEngine {
             is CalculatorOperation.Cot -> op = ' '
         }
 
+        maybe_push_number()
+
+        var did_process = false
+        while (!operations.isEmpty() && hasPrecedence(operations.peek(), op) && numbers.size >= 2) {
+            processOperation()
+            did_process = true
+        }
+
+        if (did_process) {
+            display = (numbers.peek().toString() + op).also { it }
+        } else {
+            display += op
+        }
+        operations.push(op)
+
+    }
+
+    private fun square_root() {
+        maybe_push_number()
+        if (!numbers.isEmpty()) {
+            val n = numbers.pop()
+            numbers.push( sqrt(n) )
+            display = (numbers.peek().toString()).also { it }
+        }
+    }
+
+    private fun maybe_push_number() {
         // If we have collected a number, turn it into a Double
         // and push it on to the numbers stack.
         if (!expression.isEmpty()) {
@@ -70,33 +114,70 @@ class CalculateEngine {
             numbers.push(number)
             expression = ""
         }
+    }
 
-        while (!operations.isEmpty() && hasPrecedence(operations.peek(), op) && numbers.size >= 2) {
-            processOperation()
+    private fun power_of_two() {
+        maybe_push_number()
+        if (!numbers.isEmpty()) {
+            val n = numbers.pop()
+            numbers.push(n * n)
+            display = (numbers.peek().toString()).also { it }
         }
-
-        display = (numbers.peek().toString() + op).also { it }
-        operations.push(op)
-
+    }
+    private fun one_over_x() {
+        maybe_push_number()
+        if (!numbers.isEmpty()) {
+            val n = numbers.pop()
+            numbers.push(1 / n)
+            display = (numbers.peek().toString()).also { it }
+        }
     }
 
     private fun doReset() {
-
+        expression = ""
+        display = ""
+        isShifted = false
+        numbers.clear()
+        operations.clear()
     }
 
     private fun enterDecimal() {
+        val char: Char = '.'
 
+        // If no previous number has been entered then
+        // prepend Zero in front of the decimal.
+        if (expression.isEmpty()) {
+            expression += '0'
+            expression += char
+        } else {
+            expression += char
+        }
+
+        // If no operation is pushed, we need to clear the display.
+        if (operations.isEmpty()) {
+            display = expression
+        } else {
+            display += expression
+        }
     }
 
     private fun enterNumber(digit: Int) {
         val char: Char = '0' + digit
         expression += char
-        display += expression
+
+        // If no operation is pushed, we need to clear the display.
+        if (operations.isEmpty()) {
+            display = expression
+        } else {
+            display += char
+        }
     }
 
     private fun enterPi() {
-        expression += "3.1416"
+        // Overwrite any number being entered and push PI to the stack.
+        expression = "3.1416"
         display += expression
+        maybe_push_number()
     }
 
     fun enterChar(c: Char) {
@@ -132,7 +213,7 @@ class CalculateEngine {
         if ((op1 == '*' || op1 == '/') && (op2 == '+' || op2 == '-'))
             return true
         if (op1 == op2)
-            return true
+            return false
         return false
     }
 
