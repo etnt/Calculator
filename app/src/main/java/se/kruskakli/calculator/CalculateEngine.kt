@@ -8,7 +8,7 @@ import kotlin.math.sqrt
 
 
 class CalculateEngine {
-    //private var display = ""
+    private val displayItems = mutableListOf<String>()
     var display by mutableStateOf("")
         private set
     var isShifted: Boolean by mutableStateOf(false)
@@ -25,14 +25,89 @@ class CalculateEngine {
             is CalculatorAction.Decimal -> enterDecimal()
             is CalculatorAction.Clear -> doReset()
             is CalculatorAction.Operation -> enterOperation(action.operation)
-            is CalculatorAction.Calculate -> performCalculation()
+            is CalculatorAction.Calculate -> {
+                performCalculation()
+                updateDisplay("%.5f")
+                return
+            }
             is CalculatorAction.Delete -> performDeletion()
         }
     }
 
+    fun getTheDisplay() : String {
+        return display
+    }
 
+    private fun enterNumber(digit: Int) {
+        val char: Char = '0' + digit
+        expression += char
+
+        if (displayItems.isNotEmpty() && displayItems.last().toDoubleOrNull() != null) {
+            // If the last item is a number, append the digit to it
+            val lastIndex = displayItems.lastIndex
+            // Note: the [] operator is read-only. To modify an element at a
+            // specific index, we need to use the set function.
+            val newItem = displayItems[lastIndex] + char
+            displayItems.set(lastIndex, newItem)
+        } else {
+            // If the last item is not a number, add a new item
+            displayItems.add(char.toString())
+        }
+
+        // Update the display string
+        display = displayItems.joinToString("") 
+    }
+
+    private fun doReset() {
+        expression = ""
+        numbers.clear()
+        operations.clear()
+        displayItems.clear()
+        display = ""
+    }
+
+    // Check if the number is an integer. If it is, it's
+    // converted to an integer before being converted to
+    // a string. If it's not an integer, it's formatted as
+    // a floating-point number with <X> decimal places.
+    private fun updateDisplay(fmtStr: String = "%.2f") {
+        val result = numbers.peek()
+        displayItems[displayItems.lastIndex] = if (result % 1 == 0.0) {
+            result.toInt().toString()
+        } else {
+            String.format(fmtStr, result)
+        }
+        display = displayItems.joinToString("")
+    }
+
+    // To handle the numbers and operations stacks when performing a deletion,
+    // we need to consider what the last item in displayItems represents.
+    // If it's a number, we should pop the last number from the numbers stack.
+    // If it's an operation, you should pop the last operation from the operations stack.
     private fun performDeletion() {
-
+        if (displayItems.isNotEmpty()) {
+            val lastItem = displayItems.last()
+            if (lastItem.length > 1) {
+                // If the last item has more than one character, remove the last character
+                displayItems[displayItems.lastIndex] = lastItem.substring(0, lastItem.length - 1)
+            } else {
+                // If the last item has only one character, remove the item
+                displayItems.removeAt(displayItems.lastIndex)
+                // If the last item was a number, pop the last number from the numbers stack
+                if (lastItem.toDoubleOrNull() != null) {
+                    if (numbers.isNotEmpty()) {
+                        numbers.pop()
+                    }
+                } else {
+                    // If the last item was an operation, pop the last operation from the operations stack
+                    if (operations.isNotEmpty()) {
+                        operations.pop()
+                    }
+                }
+            }
+            // Update the display string
+            display = displayItems.joinToString("")
+        }
     }
 
     private fun performCalculation() {
@@ -40,7 +115,6 @@ class CalculateEngine {
         while (!operations.isEmpty() && numbers.size >= 2) {
             processOperation()
         }
-        display = (numbers.peek().toString()).also { it }
     }
 
     private fun enterOperation(operation: CalculatorOperation) {
@@ -53,20 +127,21 @@ class CalculateEngine {
             is CalculatorOperation.Divide -> op = '/'
             is CalculatorOperation.PowerOfTwo -> {
                 power_of_two()
+                updateDisplay()
                 return
             }
             is CalculatorOperation.OneOverX -> {
                 one_over_x()
+                updateDisplay()
                 return
             }
             is CalculatorOperation.SquareRoot -> {
                 square_root()
+                updateDisplay()
                 return
             }
 
             // FIXME!
-            is CalculatorOperation.SquareRoot -> op = ' '
-
             is CalculatorOperation.Factorial -> op = ' '
             is CalculatorOperation.Percent -> op = ' '
             is CalculatorOperation.LogBaseE -> op = ' '
@@ -82,28 +157,53 @@ class CalculateEngine {
 
         maybe_push_number()
 
-        var did_process = false
         while (!operations.isEmpty() && hasPrecedence(operations.peek(), op) && numbers.size >= 2) {
             processOperation()
-            did_process = true
         }
 
-        if (did_process) {
-            display = (numbers.peek().toString() + op).also { it }
-        } else {
-            display += op
-        }
         operations.push(op)
-
+        displayItems.add(op.toString())
+        display = displayItems.joinToString("")
     }
 
     private fun square_root() {
         maybe_push_number()
         if (!numbers.isEmpty()) {
             val n = numbers.pop()
-            numbers.push( sqrt(n) )
-            display = (numbers.peek().toString()).also { it }
+            val sqrtN = sqrt(n)
+            numbers.push(sqrtN)
+            updateLastDisplayItem(sqrtN)
         }
+    }
+
+    private fun power_of_two() {
+        maybe_push_number()
+        if (!numbers.isEmpty()) {
+            val n = numbers.pop()
+            val powN = n * n
+            numbers.push(powN)
+            updateLastDisplayItem(powN)
+        }
+    }
+    private fun one_over_x() {
+        maybe_push_number()
+        if (!numbers.isEmpty()) {
+            val n = numbers.pop()
+            val oneOverN = 1 / n
+            numbers.push(oneOverN)
+            updateLastDisplayItem(oneOverN)
+        }
+    }
+
+    private fun updateLastDisplayItem(value: Double) {
+        if (displayItems.isNotEmpty()) {
+            displayItems[displayItems.lastIndex] = if (value % 1 == 0.0) {
+                value.toInt().toString()
+            } else {
+                String.format("%.2f", value)
+            }
+        }   
+        display = displayItems.joinToString("")
     }
 
     private fun maybe_push_number() {
@@ -114,31 +214,6 @@ class CalculateEngine {
             numbers.push(number)
             expression = ""
         }
-    }
-
-    private fun power_of_two() {
-        maybe_push_number()
-        if (!numbers.isEmpty()) {
-            val n = numbers.pop()
-            numbers.push(n * n)
-            display = (numbers.peek().toString()).also { it }
-        }
-    }
-    private fun one_over_x() {
-        maybe_push_number()
-        if (!numbers.isEmpty()) {
-            val n = numbers.pop()
-            numbers.push(1 / n)
-            display = (numbers.peek().toString()).also { it }
-        }
-    }
-
-    private fun doReset() {
-        expression = ""
-        display = ""
-        isShifted = false
-        numbers.clear()
-        operations.clear()
     }
 
     private fun enterDecimal() {
@@ -153,39 +228,23 @@ class CalculateEngine {
             expression += char
         }
 
-        // If no operation is pushed, we need to clear the display.
-        if (operations.isEmpty()) {
-            display = expression
+        if (displayItems.isNotEmpty() && displayItems.last().toDoubleOrNull() != null) {
+            // If the last item is a number, append the decimal point to it
+            val lastIndex = displayItems.lastIndex
+            displayItems.set(lastIndex, expression)
         } else {
-            display += expression
+            // If the last item is not a number, add a new item
+            displayItems.add(expression)
         }
-    }
-
-    private fun enterNumber(digit: Int) {
-        val char: Char = '0' + digit
-        expression += char
-
-        // If no operation is pushed, we need to clear the display.
-        if (operations.isEmpty()) {
-            display = expression
-        } else {
-            display += char
-        }
+        display = displayItems.joinToString("")
     }
 
     private fun enterPi() {
-        // Overwrite any number being entered and push PI to the stack.
-        expression = "3.1416"
-        display += expression
-        maybe_push_number()
-    }
-
-    fun enterChar(c: Char) {
-        expression += c
-    }
-
-    fun getExpr(): String {
-        return display
+        val pi = 3.1416
+        expression = ""
+        numbers.push(pi)
+        displayItems.add(pi.toString())
+        display = displayItems.joinToString("")
     }
 
     private fun processOperation() {
@@ -205,6 +264,19 @@ class CalculateEngine {
             else -> throw IllegalArgumentException("Invalid operator: '$operator'")
         }
         numbers.push(result)
+
+        // Remove the last two numbers and the operation from displayItems
+        if (displayItems.size >= 3) {
+            displayItems.removeAt(displayItems.lastIndex)
+            displayItems.removeAt(displayItems.lastIndex)
+            displayItems.removeAt(displayItems.lastIndex)
+        }
+
+        // Add the result to displayItems
+        displayItems.add(result.toString()) 
+
+        updateLastDisplayItem(result)
+
     }
 
     private fun hasPrecedence(op1: Char, op2: Char): Boolean {
@@ -217,126 +289,5 @@ class CalculateEngine {
         return false
     }
 
-    /*
-    fun enterChar(c: Char) {
-        when {
-            c == '=' -> {
-                val result = calculate(expression.value)
-                expression.value = result.toString()
-            }
-            else -> {
-                expression.value += c
-            }
-        }
-    }
-
-    fun reset() {
-        expression.value = ""
-        numbers.clear()
-        operations.clear()
-    }
-
-    private fun calculate(expression: String): Double {
-        if (!isBalanced(expression)) {
-            throw IllegalArgumentException("Unbalanced parentheses in the expression.")
-        }
-
-        var numberBuffer = StringBuilder()
-
-        for (c in expression) {
-            when {
-                c.isDigit() || c == '.' -> {
-                    numberBuffer.append(c)
-                }
-                c == '(' -> {
-                    operations.push(c)
-                }
-                c == ')' -> {
-                    if (numberBuffer.isNotEmpty()) {
-                        numbers.push(numberBuffer.toString().toDouble())
-                        numberBuffer.clear()
-                    }
-                    while (!operations.isEmpty() && operations.peek() != '(') {
-                        processOperation(numbers, operations)
-                    }
-                    if (!operations.isEmpty()) {
-                        operations.pop()
-                    }
-                }
-                c == ' ' || c == '+' || c == '-' || c == '*' || c == '/' -> {
-                    if (numberBuffer.isNotEmpty()) {
-                        numbers.push(numberBuffer.toString().toDouble())
-                        numberBuffer.clear()
-                    }
-
-                    if (c != ' ') {
-                        while (!operations.isEmpty() && hasPrecedence(c, operations.peek()) && numbers.size >= 2) {
-                            processOperation(numbers, operations)
-                        }
-                        operations.push(c)
-                    }
-                }
-                else -> throw IllegalArgumentException("Invalid character in expression: '$c'")
-            }
-        }
-
-        if (numberBuffer.isNotEmpty()) {
-            numbers.push(numberBuffer.toString().toDouble())
-        }
-
-        while (!operations.isEmpty()) {
-            processOperation(numbers, operations)
-        }
-
-        return numbers.pop()
-    }
-
-    private fun processOperation(numbers: Stack<Double>, operations: Stack<Char>) {
-        val operator = operations.pop()
-        val right = numbers.pop()
-        val left = numbers.pop()
-
-        val result = when (operator) {
-            '+' -> left + right
-            '-' -> left - right
-            '*' -> left * right
-            '/' -> {
-                if (right == 0.0) throw ArithmeticException("Division by zero")
-                left / right
-            }
-            else -> throw IllegalArgumentException("Invalid operator: '$operator'")
-        }
-
-        numbers.push(result)
-    }
-
-    private fun hasPrecedence(op1: Char, op2: Char): Boolean {
-        if (op2 == '(' || op2 == ')')
-            return false
-        if ((op1 == '*' || op1 == '/') && (op2 == '+' || op2 == '-'))
-            return false
-        if (op1 == op2)
-            return false
-        return true
-    }
-
-    private fun isBalanced(expression: String): Boolean {
-        val stack = Stack<Char>()
-
-        for (char in expression) {
-            when (char) {
-                '(' -> stack.push(char)
-                ')' -> {
-                    if (stack.isEmpty()) {
-                        return false
-                    }
-                    stack.pop()
-                }
-            }
-        }
-
-        return stack.isEmpty()
-    }
-    */
 
 }

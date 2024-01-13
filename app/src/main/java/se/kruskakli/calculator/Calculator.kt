@@ -19,6 +19,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -48,15 +49,17 @@ fun Calculator(
         ) {
             Text(
                 //text = state.number1 + (state.operation?.symbol ?: "") + state.number2,
-                text = xstate.value.getExpr(),
+                text = xstate.value.getTheDisplay(),
                 textAlign = TextAlign.End,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 32.dp),
                 fontWeight = FontWeight.Light,
-                fontSize = 70.sp,
+                fontSize = 50.sp,
+                lineHeight = 60.sp,
+                maxLines = 2,
                 color = Color.White,
-                maxLines = 2
+                overflow = TextOverflow.Ellipsis
             )
             Row(
                 modifier = Modifier
@@ -320,6 +323,7 @@ fun Calculator(
                         .weight(1f),
                     onClick = {
                         onAction(CalculatorAction.Decimal)
+                        xonAction(CalculatorAction.Decimal)
                     }
                 )
                 CalculatorButton(
