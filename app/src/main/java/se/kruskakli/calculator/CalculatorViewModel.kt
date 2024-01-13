@@ -28,6 +28,7 @@ class CalculatorViewModel: ViewModel() {
             is CalculatorAction.Operation -> enterOperation(action.operation)
             is CalculatorAction.Calculate -> performCalculation()
             is CalculatorAction.Delete -> performDeletion()
+            else -> Unit
         }
     }
 
@@ -59,6 +60,7 @@ class CalculatorViewModel: ViewModel() {
                 is CalculatorOperation.Multiply -> number1 * number2
                 is CalculatorOperation.Divide -> number1 / number2
                 null -> return
+                else -> 0
             }
             state = state.copy(
                 number1 = result.toString().take(15),

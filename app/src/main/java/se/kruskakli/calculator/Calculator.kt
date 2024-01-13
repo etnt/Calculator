@@ -15,6 +15,8 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -82,24 +84,35 @@ fun Calculator(
                     }
                 )
                 CalculatorButton(
-                    symbol = "\u03C0",  // PI
+                    symbol = CalculatorMathSymbols.SHIFT,
+                    color = Color.Blue,
+                    style = TextStyle(
+                            fontSize = 48.sp,
+                            fontWeight = FontWeight.Bold
+                    ),
                     modifier = Modifier
                         .background(LightGray)
                         .aspectRatio(1f)
                         .weight(1f),
                     onClick = {
                         onAction(CalculatorAction.Pi)
-                        xonAction(CalculatorAction.Pi)
+                        xonAction(CalculatorAction.Shift)
                     }
                 )
                 CalculatorButton(
-                    symbol = "/",
+                    symbol = if (xstate.value.isShifted) CalculatorMathSymbols.PI else CalculatorMathSymbols.DIVIDE,
+                    style = if (xstate.value.isShifted) TextStyle(fontSize = 28.sp, fontStyle = FontStyle.Italic) else TextStyle(fontSize = 36.sp),
+                    color = if (xstate.value.isShifted) Color.Blue else Color.White,
                     modifier = Modifier
                         .background(Orange)
                         .aspectRatio(1f)
                         .weight(1f),
                     onClick = {
-                        onAction(CalculatorAction.Operation(CalculatorOperation.Divide))
+                        if (xstate.value.isShifted) {
+                            onAction(CalculatorAction.Pi)
+                        } else {
+                            onAction(CalculatorAction.Operation(CalculatorOperation.Divide))
+                        }
                     }
                 )
             }
@@ -144,7 +157,9 @@ fun Calculator(
                     }
                 )
                 CalculatorButton(
-                    symbol = "*",
+                    symbol = if (xstate.value.isShifted) CalculatorMathSymbols.ONE_OVER_X else CalculatorMathSymbols.MULTIPLY,
+                    style = if (xstate.value.isShifted) TextStyle(fontSize = 28.sp, fontStyle = FontStyle.Italic) else TextStyle(fontSize = 36.sp),
+                    color = if (xstate.value.isShifted) Color.Blue else Color.White,
                     modifier = Modifier
                         .background(Orange)
                         .aspectRatio(1f)
@@ -194,7 +209,9 @@ fun Calculator(
                     }
                 )
                 CalculatorButton(
-                    symbol = "-",
+                    symbol = if (xstate.value.isShifted) CalculatorMathSymbols.POWER_OF_TWO else CalculatorMathSymbols.MINUS,
+                    style = if (xstate.value.isShifted) TextStyle(fontSize = 28.sp, fontStyle = FontStyle.Italic) else TextStyle(fontSize = 36.sp),
+                    color = if (xstate.value.isShifted) Color.Blue else Color.White,
                     modifier = Modifier
                         .background(Orange)
                         .aspectRatio(1f)
@@ -243,7 +260,9 @@ fun Calculator(
                     }
                 )
                 CalculatorButton(
-                    symbol = "+",
+                    symbol = if (xstate.value.isShifted) CalculatorMathSymbols.SQUARE_ROOT else CalculatorMathSymbols.PLUS,
+                    style = if (xstate.value.isShifted) TextStyle(fontSize = 28.sp, fontStyle = FontStyle.Italic) else TextStyle(fontSize = 36.sp),
+                    color = if (xstate.value.isShifted) Color.Blue else Color.White,
                     modifier = Modifier
                         .background(Orange)
                         .aspectRatio(1f)
@@ -279,7 +298,7 @@ fun Calculator(
                     }
                 )
                 CalculatorButton(
-                    symbol = "=",
+                    symbol = CalculatorMathSymbols.EQUALS,
                     modifier = Modifier
                         .background(Orange)
                         .aspectRatio(1f)

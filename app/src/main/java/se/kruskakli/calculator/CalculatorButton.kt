@@ -12,6 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -21,7 +22,8 @@ import se.kruskakli.calculator.ui.theme.LightGray
 fun CalculatorButton(
     symbol: String,
     modifier: Modifier = Modifier,
-    color: Color = Color.Black,
+    color: Color = Color.White,
+    style: TextStyle = TextStyle(fontSize = 36.sp),
     onClick: () -> Unit  // the way to send event that the Button was clicked
 ) {
     Box (
@@ -34,9 +36,10 @@ fun CalculatorButton(
     ) {
         Text(
             text = symbol,
-            fontSize = 36.sp, // for more flexibility, send in a TextStyle
+            style = style,
+            //fontSize = 36.sp, // for more flexibility, send in a TextStyle
             // Alt. MaterialTheme.colors.onbackground()
-            color = Color.White
+            color = color
          )
     }
 }

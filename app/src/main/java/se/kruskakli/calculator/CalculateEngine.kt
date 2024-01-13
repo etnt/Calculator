@@ -10,14 +10,17 @@ class CalculateEngine {
     //private var display = ""
     var display by mutableStateOf("")
         private set
+    var isShifted: Boolean by mutableStateOf(false)
+        private set
     private var expression = ""
     private var numbers = Stack<Double>()
     private var operations = Stack<Char>()
 
     fun onAction(action: CalculatorAction) {
-        when(action) {
+        when (action) {
             is CalculatorAction.Number -> enterNumber(action.number)
             is CalculatorAction.Pi -> enterPi()
+            is CalculatorAction.Shift -> isShifted = !isShifted  // toggle!
             is CalculatorAction.Decimal -> enterDecimal()
             is CalculatorAction.Clear -> doReset()
             is CalculatorAction.Operation -> enterOperation(action.operation)
@@ -25,7 +28,6 @@ class CalculateEngine {
             is CalculatorAction.Delete -> performDeletion()
         }
     }
-
 
 
     private fun performDeletion() {
@@ -37,14 +39,28 @@ class CalculateEngine {
     }
 
     private fun enterOperation(operation: CalculatorOperation) {
-        val op : Char
+        val op: Char
 
-        // Push the incoming operation on to the operations stack.
-        when(operation) {
+        when (operation) {
             is CalculatorOperation.Add -> op = '+'
             is CalculatorOperation.Subtract -> op = '-'
             is CalculatorOperation.Multiply -> op = '*'
             is CalculatorOperation.Divide -> op = '/'
+
+            // FIXME!
+            is CalculatorOperation.SquareRoot -> op = ' '
+            is CalculatorOperation.PowerOf -> op = ' '
+            is CalculatorOperation.Factorial -> op = ' '
+            is CalculatorOperation.Percent -> op = ' '
+            is CalculatorOperation.LogBaseE -> op = ' '
+            is CalculatorOperation.LogBase10 -> op = ' '
+            is CalculatorOperation.EToThePowerOfX -> op = ' '
+            is CalculatorOperation.Sin -> op = ' '
+            is CalculatorOperation.Cos -> op = ' '
+            is CalculatorOperation.Tan -> op = ' '
+            is CalculatorOperation.Csc -> op = ' '
+            is CalculatorOperation.Sec -> op = ' '
+            is CalculatorOperation.Cot -> op = ' '
         }
 
         // If we have collected a number, turn it into a Double
@@ -87,7 +103,7 @@ class CalculateEngine {
         expression += c
     }
 
-    fun getExpr() : String {
+    fun getExpr(): String {
         return display
     }
 
@@ -104,6 +120,7 @@ class CalculateEngine {
                 if (right == 0.0) throw ArithmeticException("Division by zero")
                 left / right
             }
+
             else -> throw IllegalArgumentException("Invalid operator: '$operator'")
         }
         numbers.push(result)
