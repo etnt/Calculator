@@ -30,7 +30,7 @@ import se.kruskakli.calculator.ui.theme.Orange
 
 @Composable
 fun Calculator(
-    xstate: MutableState<CalculateEngine>,
+    xstate: CalculatorState,
     modifier: Modifier = Modifier,  // Note: optional with a default value
     buttonSpacing: Dp = 8.dp,
     xonAction: (CalculatorAction) -> Unit
@@ -47,7 +47,7 @@ fun Calculator(
         ) {
             Text(
                 //text = state.number1 + (state.operation?.symbol ?: "") + state.number2,
-                text = xstate.value.getTheDisplay(),
+                text = xstate.display.value,
                 textAlign = TextAlign.End,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -100,15 +100,15 @@ fun Calculator(
                     }
                 )
                 CalculatorButton(
-                    symbol = if (xstate.value.isShifted) CalculatorMathSymbols.PI else CalculatorMathSymbols.DIVIDE,
-                    style = if (xstate.value.isShifted) TextStyle(fontSize = 28.sp, fontStyle = FontStyle.Italic) else TextStyle(fontSize = 36.sp),
-                    color = if (xstate.value.isShifted) Color.Blue else Color.White,
+                    symbol = if (xstate.isShifted.value) CalculatorMathSymbols.PI else CalculatorMathSymbols.DIVIDE,
+                    style = if (xstate.isShifted.value) TextStyle(fontSize = 28.sp, fontStyle = FontStyle.Italic) else TextStyle(fontSize = 36.sp),
+                    color = if (xstate.isShifted.value) Color.Blue else Color.White,
                     modifier = Modifier
                         .background(Orange)
                         .aspectRatio(1f)
                         .weight(1f),
                     onClick = {
-                        if (xstate.value.isShifted) {
+                        if (xstate.isShifted.value) {
                             xonAction(CalculatorAction.Pi)
                         } else {
                             xonAction(CalculatorAction.Operation(CalculatorOperation.Divide))
@@ -155,15 +155,15 @@ fun Calculator(
                     }
                 )
                 CalculatorButton(
-                    symbol = if (xstate.value.isShifted) CalculatorMathSymbols.ONE_OVER_X else CalculatorMathSymbols.MULTIPLY,
-                    style = if (xstate.value.isShifted) TextStyle(fontSize = 28.sp, fontStyle = FontStyle.Italic) else TextStyle(fontSize = 36.sp),
-                    color = if (xstate.value.isShifted) Color.Blue else Color.White,
+                    symbol = if (xstate.isShifted.value) CalculatorMathSymbols.ONE_OVER_X else CalculatorMathSymbols.MULTIPLY,
+                    style = if (xstate.isShifted.value) TextStyle(fontSize = 28.sp, fontStyle = FontStyle.Italic) else TextStyle(fontSize = 36.sp),
+                    color = if (xstate.isShifted.value) Color.Blue else Color.White,
                     modifier = Modifier
                         .background(Orange)
                         .aspectRatio(1f)
                         .weight(1f),
                     onClick = {
-                        if (xstate.value.isShifted) {
+                        if (xstate.isShifted.value) {
                             xonAction(CalculatorAction.Operation(CalculatorOperation.OneOverX))
                         } else {
                             xonAction(CalculatorAction.Operation(CalculatorOperation.Multiply))
@@ -210,15 +210,15 @@ fun Calculator(
                     }
                 )
                 CalculatorButton(
-                    symbol = if (xstate.value.isShifted) CalculatorMathSymbols.POWER_OF_TWO else CalculatorMathSymbols.MINUS,
-                    style = if (xstate.value.isShifted) TextStyle(fontSize = 28.sp, fontStyle = FontStyle.Italic) else TextStyle(fontSize = 36.sp),
-                    color = if (xstate.value.isShifted) Color.Blue else Color.White,
+                    symbol = if (xstate.isShifted.value) CalculatorMathSymbols.POWER_OF_TWO else CalculatorMathSymbols.MINUS,
+                    style = if (xstate.isShifted.value) TextStyle(fontSize = 28.sp, fontStyle = FontStyle.Italic) else TextStyle(fontSize = 36.sp),
+                    color = if (xstate.isShifted.value) Color.Blue else Color.White,
                     modifier = Modifier
                         .background(Orange)
                         .aspectRatio(1f)
                         .weight(1f),
                     onClick = {
-                        if (xstate.value.isShifted) {
+                        if (xstate.isShifted.value) {
                             xonAction(CalculatorAction.Operation(CalculatorOperation.PowerOfTwo))
                         } else {
                             xonAction(CalculatorAction.Operation(CalculatorOperation.Subtract))
@@ -265,15 +265,15 @@ fun Calculator(
                     }
                 )
                 CalculatorButton(
-                    symbol = if (xstate.value.isShifted) CalculatorMathSymbols.SQUARE_ROOT else CalculatorMathSymbols.PLUS,
-                    style = if (xstate.value.isShifted) TextStyle(fontSize = 28.sp, fontStyle = FontStyle.Italic) else TextStyle(fontSize = 36.sp),
-                    color = if (xstate.value.isShifted) Color.Blue else Color.White,
+                    symbol = if (xstate.isShifted.value) CalculatorMathSymbols.SQUARE_ROOT else CalculatorMathSymbols.PLUS,
+                    style = if (xstate.isShifted.value) TextStyle(fontSize = 28.sp, fontStyle = FontStyle.Italic) else TextStyle(fontSize = 36.sp),
+                    color = if (xstate.isShifted.value) Color.Blue else Color.White,
                     modifier = Modifier
                         .background(Orange)
                         .aspectRatio(1f)
                         .weight(1f),
                     onClick = {
-                        if (xstate.value.isShifted) {
+                        if (xstate.isShifted.value) {
                             xonAction(CalculatorAction.Operation(CalculatorOperation.SquareRoot))
                         } else {
                             xonAction(CalculatorAction.Operation(CalculatorOperation.Add))

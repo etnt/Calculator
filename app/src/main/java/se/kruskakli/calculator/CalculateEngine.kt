@@ -26,25 +26,20 @@ package se.kruskakli.calculator
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.lifecycle.ViewModel
 import java.util.Stack
 import kotlin.math.sqrt
 
 
-class CalculateEngine {
-    private val displayItems = mutableListOf<String>()
-    var display by mutableStateOf("")
-        private set
-    var isShifted: Boolean by mutableStateOf(false)
-        private set
-    private var expression = ""
-    private var numbers = Stack<Double>()
-    private var operations = Stack<Char>()
+class CalculateEngine : ViewModel() {
+
+    var state by mutableStateOf(CalculatorState())
 
     fun onAction(action: CalculatorAction) {
         when (action) {
             is CalculatorAction.Number -> enterNumber(action.number)
             is CalculatorAction.Pi -> enterPi()
-            is CalculatorAction.Shift -> isShifted = !isShifted  // toggle!
+            is CalculatorAction.Shift -> state.isShifted.value = !state.isShifted.value  // toggle!
             is CalculatorAction.Decimal -> enterDecimal()
             is CalculatorAction.Clear -> doReset()
             is CalculatorAction.Operation -> enterOperation(action.operation)
@@ -58,35 +53,33 @@ class CalculateEngine {
     }
 
     fun getTheDisplay() : String {
-        return display
+        return state.display.value
     }
 
     private fun enterNumber(digit: Int) {
         val char: Char = '0' + digit
-        expression += char
+        state.expression = state.expression.plus(char)
 
-        if (displayItems.isNotEmpty() && displayItems.last().toDoubleOrNull() != null) {
+        if (state.displayItems.isNotEmpty() && state.displayItems.last().toDoubleOrNull() != null) {
             // If the last item is a number, append the digit to it
-            val lastIndex = displayItems.lastIndex
-            // Note: the [] operator is read-only. To modify an element at a
-            // specific index, we need to use the set function.
-            val newItem = displayItems[lastIndex] + char
-            displayItems.set(lastIndex, newItem)
+            val lastIndex = state.displayItems.lastIndex
+            val newItem = state.displayItems[lastIndex].plus(char)
+            state.displayItems[lastIndex] = newItem
         } else {
             // If the last item is not a number, add a new item
-            displayItems.add(char.toString())
+            state.displayItems.add(char.toString())
         }
 
         // Update the display string
-        display = displayItems.joinToString("") 
+        state.display.value = state.displayItems.joinToString("")
     }
 
     private fun doReset() {
-        expression = ""
-        numbers.clear()
-        operations.clear()
-        displayItems.clear()
-        display = ""
+        state.expression = ""
+        state.numbers.clear()
+        state.operations.clear()
+        state.displayItems.clear()
+        state.display.value = ""
     }
 
     // Check if the number is an integer. If it is, it's
@@ -94,13 +87,13 @@ class CalculateEngine {
     // a string. If it's not an integer, it's formatted as
     // a floating-point number with <X> decimal places.
     private fun updateDisplay(fmtStr: String = "%.2f") {
-        val result = numbers.peek()
-        displayItems[displayItems.lastIndex] = if (result % 1 == 0.0) {
+        val result = state.numbers.peek()
+        state.displayItems[state.displayItems.lastIndex] = if (result % 1 == 0.0) {
             result.toInt().toString()
         } else {
             String.format(fmtStr, result)
         }
-        display = displayItems.joinToString("")
+        state.display.value = state.displayItems.joinToString("")
     }
 
     // To handle the numbers and operations stacks when performing a deletion,
@@ -108,34 +101,34 @@ class CalculateEngine {
     // If it's a number, we should pop the last number from the numbers stack.
     // If it's an operation, you should pop the last operation from the operations stack.
     private fun performDeletion() {
-        if (displayItems.isNotEmpty()) {
-            val lastItem = displayItems.last()
+        if (state.displayItems.isNotEmpty()) {
+            val lastItem = state.displayItems.last()
             if (lastItem.length > 1) {
                 // If the last item has more than one character, remove the last character
-                displayItems[displayItems.lastIndex] = lastItem.substring(0, lastItem.length - 1)
+                state.displayItems[state.displayItems.lastIndex] = lastItem.substring(0, lastItem.length - 1)
             } else {
                 // If the last item has only one character, remove the item
-                displayItems.removeAt(displayItems.lastIndex)
+                state.displayItems.removeAt(state.displayItems.lastIndex)
                 // If the last item was a number, pop the last number from the numbers stack
                 if (lastItem.toDoubleOrNull() != null) {
-                    if (numbers.isNotEmpty()) {
-                        numbers.pop()
+                    if (state.numbers.isNotEmpty()) {
+                        state.numbers.pop()
                     }
                 } else {
                     // If the last item was an operation, pop the last operation from the operations stack
-                    if (operations.isNotEmpty()) {
-                        operations.pop()
+                    if (state.operations.isNotEmpty()) {
+                        state.operations.pop()
                     }
                 }
             }
             // Update the display string
-            display = displayItems.joinToString("")
+            state.display.value = state.displayItems.joinToString("")
         }
     }
 
     private fun performCalculation() {
         maybe_push_number()
-        while (!operations.isEmpty() && numbers.size >= 2) {
+        while (!state.operations.isEmpty() && state.numbers.size >= 2) {
             processOperation()
         }
     }
@@ -180,62 +173,67 @@ class CalculateEngine {
 
         maybe_push_number()
 
-        while (!operations.isEmpty() && hasPrecedence(operations.peek(), op) && numbers.size >= 2) {
+        while (!state.operations.isEmpty() && hasPrecedence(state.operations.peek(), op) && state.numbers.size >= 2) {
             processOperation()
         }
 
-        operations.push(op)
-        displayItems.add(op.toString())
-        display = displayItems.joinToString("")
+        state.operations.push(op)
+        state.displayItems.add(op.toString())
+        state.display.value = state.displayItems.joinToString("")
     }
 
     private fun square_root() {
         maybe_push_number()
-        if (!numbers.isEmpty()) {
-            val n = numbers.pop()
+        if (!state.numbers.isEmpty()) {
+            val n = state.numbers.pop()
             val sqrtN = sqrt(n)
-            numbers.push(sqrtN)
+            state.numbers.push(sqrtN)
             updateLastDisplayItem(sqrtN)
         }
     }
 
     private fun power_of_two() {
         maybe_push_number()
-        if (!numbers.isEmpty()) {
-            val n = numbers.pop()
+        if (!state.numbers.isEmpty()) {
+            val n = state.numbers.pop()
             val powN = n * n
-            numbers.push(powN)
+            state.numbers.push(powN)
             updateLastDisplayItem(powN)
         }
     }
+    
     private fun one_over_x() {
         maybe_push_number()
-        if (!numbers.isEmpty()) {
-            val n = numbers.pop()
-            val oneOverN = 1 / n
-            numbers.push(oneOverN)
-            updateLastDisplayItem(oneOverN)
+        if (!state.numbers.isEmpty()) {
+            val n = state.numbers.pop()
+            if (n.toDouble() != 0.0) {
+                val oneOverN = 1.0 / n.toDouble()
+                state.numbers.push(oneOverN)
+                updateLastDisplayItem(oneOverN)
+            } else {
+                throw ArithmeticException("Division by zero")
+            }
         }
     }
 
     private fun updateLastDisplayItem(value: Double) {
-        if (displayItems.isNotEmpty()) {
-            displayItems[displayItems.lastIndex] = if (value % 1 == 0.0) {
+        if (state.displayItems.isNotEmpty()) {
+            state.displayItems[state.displayItems.lastIndex] = if (value % 1 == 0.0) {
                 value.toInt().toString()
             } else {
                 String.format("%.2f", value)
             }
         }   
-        display = displayItems.joinToString("")
+        state.display.value = state.displayItems.joinToString("")
     }
 
     private fun maybe_push_number() {
         // If we have collected a number, turn it into a Double
         // and push it on to the numbers stack.
-        if (!expression.isEmpty()) {
-            val number = expression.toDouble()
-            numbers.push(number)
-            expression = ""
+        if (!state.expression.isEmpty()) {
+            val number = state.expression.toDouble()
+            state.numbers.push(number)
+            state.expression = ""
         }
     }
 
@@ -244,45 +242,45 @@ class CalculateEngine {
 
         // If no previous number has been entered then
         // prepend Zero in front of the decimal.
-        if (expression.isEmpty()) {
-            expression += '0'
-            expression += char
+        if (state.expression.isEmpty()) {
+            state.expression = state.expression.plus('0')
+            state.expression = state.expression.plus(char)
         } else {
-            expression += char
+            state.expression = state.expression.plus(char)
         }
 
-        if (displayItems.isNotEmpty() && displayItems.last().toDoubleOrNull() != null) {
+        if (state.displayItems.isNotEmpty() && state.displayItems.last().toDoubleOrNull() != null) {
             // If the last item is a number, append the decimal point to it
-            val lastIndex = displayItems.lastIndex
-            displayItems.set(lastIndex, expression)
+            val lastIndex = state.displayItems.lastIndex
+            state.displayItems.set(lastIndex, state.expression)
         } else {
             // If the last item is not a number, add a new item
-            displayItems.add(expression)
+            state.displayItems.add(state.expression)
         }
-        display = displayItems.joinToString("")
+        state.display.value = state.displayItems.joinToString("")
     }
 
     private fun enterPi() {
         val pi = 3.1416
 
         // If the last item in displayItems is a number, remove it
-        if (displayItems.isNotEmpty() && displayItems.last().toDoubleOrNull() != null) {
-            displayItems.removeAt(displayItems.size - 1)
-            if (numbers.isNotEmpty()) {
-                numbers.pop()
+        if (state.displayItems.isNotEmpty() && state.displayItems.last().toDoubleOrNull() != null) {
+            state.displayItems.removeAt(state.displayItems.size - 1)
+            if (state.numbers.isNotEmpty()) {
+                state.numbers.pop()
             }
         }
-        
-        expression = ""
-        numbers.push(pi)
-        displayItems.add(pi.toString())
-        display = displayItems.joinToString("")
+
+        state.expression = ""
+        state.numbers.push(pi)
+        state.displayItems.add(pi.toString())
+        state.display.value = state.displayItems.joinToString("")
     }
 
     private fun processOperation() {
-        val operator = operations.pop()
-        val right = numbers.pop()
-        val left = numbers.pop()
+        val operator = state.operations.pop()
+        val right = state.numbers.pop()
+        val left = state.numbers.pop()
 
         val result = when (operator) {
             '+' -> left + right
@@ -295,17 +293,17 @@ class CalculateEngine {
 
             else -> throw IllegalArgumentException("Invalid operator: '$operator'")
         }
-        numbers.push(result)
+        state.numbers.push(result)
 
         // Remove the last two numbers and the operation from displayItems
-        if (displayItems.size >= 3) {
-            displayItems.removeAt(displayItems.lastIndex)
-            displayItems.removeAt(displayItems.lastIndex)
-            displayItems.removeAt(displayItems.lastIndex)
+        if (state.displayItems.size >= 3) {
+            state.displayItems.removeAt(state.displayItems.lastIndex)
+            state.displayItems.removeAt(state.displayItems.lastIndex)
+            state.displayItems.removeAt(state.displayItems.lastIndex)
         }
 
         // Add the result to displayItems
-        displayItems.add(result.toString()) 
+        state.displayItems.add(result.toString())
 
         updateLastDisplayItem(result)
 
@@ -323,3 +321,4 @@ class CalculateEngine {
 
 
 }
+

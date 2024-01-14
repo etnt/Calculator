@@ -25,11 +25,13 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             CalculatorTheme(darkTheme = true) {
-                val xstate = remember { mutableStateOf(CalculateEngine()) }
+                //val xstate = remember { mutableStateOf(CalculateEngine()) }
+                val viewModel = viewModel<CalculateEngine>()
+                val xstate = viewModel.state
                 val buttonSpacing = 8.dp
                 Calculator(
                     xstate = xstate,
-                    xonAction = { xstate.value.onAction(it) },
+                    xonAction = { viewModel.onAction(it) },
                     buttonSpacing = buttonSpacing,
                     modifier = Modifier
                         .fillMaxSize()
