@@ -30,11 +30,9 @@ import se.kruskakli.calculator.ui.theme.Orange
 
 @Composable
 fun Calculator(
-    state: CalculatorState,
     xstate: MutableState<CalculateEngine>,
     modifier: Modifier = Modifier,  // Note: optional with a default value
     buttonSpacing: Dp = 8.dp,
-    onAction: (CalculatorAction) -> Unit,
     xonAction: (CalculatorAction) -> Unit
 ) {
     Box(modifier = Modifier
@@ -73,7 +71,6 @@ fun Calculator(
                         .aspectRatio(1f)
                         .weight(1f),
                     onClick = {
-                        onAction(CalculatorAction.Clear)
                         xonAction(CalculatorAction.Clear)
                     }
                 )
@@ -84,7 +81,6 @@ fun Calculator(
                         .aspectRatio(1f)
                         .weight(1f),
                     onClick = {
-                        onAction(CalculatorAction.Delete)
                         xonAction(CalculatorAction.Delete)
                     }
                 )
@@ -100,7 +96,6 @@ fun Calculator(
                         .aspectRatio(1f)
                         .weight(1f),
                     onClick = {
-                        onAction(CalculatorAction.Pi)
                         xonAction(CalculatorAction.Shift)
                     }
                 )
@@ -113,7 +108,6 @@ fun Calculator(
                         .aspectRatio(1f)
                         .weight(1f),
                     onClick = {
-                        onAction(CalculatorAction.Operation(CalculatorOperation.Divide))
                         if (xstate.value.isShifted) {
                             xonAction(CalculatorAction.Pi)
                         } else {
@@ -135,7 +129,6 @@ fun Calculator(
                         .aspectRatio(1f)
                         .weight(1f),
                     onClick = {
-                        onAction(CalculatorAction.Number(7))
                         xonAction(CalculatorAction.Number(7))
                     }
                 )
@@ -147,7 +140,6 @@ fun Calculator(
                         .aspectRatio(1f)
                         .weight(1f),
                     onClick = {
-                        onAction(CalculatorAction.Number(8))
                         xonAction(CalculatorAction.Number(8))
                     }
                 )
@@ -159,7 +151,6 @@ fun Calculator(
                         .aspectRatio(1f)
                         .weight(1f),
                     onClick = {
-                        onAction(CalculatorAction.Number(9))
                         xonAction(CalculatorAction.Number(9))
                     }
                 )
@@ -172,7 +163,6 @@ fun Calculator(
                         .aspectRatio(1f)
                         .weight(1f),
                     onClick = {
-                        onAction(CalculatorAction.Operation(CalculatorOperation.Multiply))
                         if (xstate.value.isShifted) {
                             xonAction(CalculatorAction.Operation(CalculatorOperation.OneOverX))
                         } else {
@@ -194,7 +184,6 @@ fun Calculator(
                         .aspectRatio(1f)
                         .weight(1f),
                     onClick = {
-                        onAction(CalculatorAction.Number(4))
                         xonAction(CalculatorAction.Number(4))
                     }
                 )
@@ -206,7 +195,6 @@ fun Calculator(
                         .aspectRatio(1f)
                         .weight(1f),
                     onClick = {
-                        onAction(CalculatorAction.Number(5))
                         xonAction(CalculatorAction.Number(5))
                     }
                 )
@@ -218,7 +206,6 @@ fun Calculator(
                         .aspectRatio(1f)
                         .weight(1f),
                     onClick = {
-                        onAction(CalculatorAction.Number(6))
                         xonAction(CalculatorAction.Number(6))
                     }
                 )
@@ -231,7 +218,6 @@ fun Calculator(
                         .aspectRatio(1f)
                         .weight(1f),
                     onClick = {
-                        onAction(CalculatorAction.Operation(CalculatorOperation.Subtract))
                         if (xstate.value.isShifted) {
                             xonAction(CalculatorAction.Operation(CalculatorOperation.PowerOfTwo))
                         } else {
@@ -253,7 +239,6 @@ fun Calculator(
                         .aspectRatio(1f)
                         .weight(1f),
                     onClick = {
-                        onAction(CalculatorAction.Number(1))
                         xonAction(CalculatorAction.Number(1))
                     }
                 )
@@ -265,7 +250,6 @@ fun Calculator(
                         .aspectRatio(1f)
                         .weight(1f),
                     onClick = {
-                        onAction(CalculatorAction.Number(2))
                         xonAction(CalculatorAction.Number(2))
                     }
                 )
@@ -277,7 +261,6 @@ fun Calculator(
                         .aspectRatio(1f)
                         .weight(1f),
                     onClick = {
-                        onAction(CalculatorAction.Number(3))
                         xonAction(CalculatorAction.Number(3))
                     }
                 )
@@ -290,7 +273,6 @@ fun Calculator(
                         .aspectRatio(1f)
                         .weight(1f),
                     onClick = {
-                        onAction(CalculatorAction.Operation(CalculatorOperation.Add))
                         if (xstate.value.isShifted) {
                             xonAction(CalculatorAction.Operation(CalculatorOperation.SquareRoot))
                         } else {
@@ -311,7 +293,6 @@ fun Calculator(
                         .aspectRatio(2f)  // twice as wide as high!
                         .weight(2f),  // the other buttons has weight 1f, hence this button will occupy more space
                     onClick = {
-                        onAction(CalculatorAction.Number(0))
                         xonAction(CalculatorAction.Number(0))
                     }
                 )
@@ -322,7 +303,6 @@ fun Calculator(
                         .aspectRatio(1f)
                         .weight(1f),
                     onClick = {
-                        onAction(CalculatorAction.Decimal)
                         xonAction(CalculatorAction.Decimal)
                     }
                 )
@@ -333,7 +313,6 @@ fun Calculator(
                         .aspectRatio(1f)
                         .weight(1f),
                     onClick = {
-                        onAction(CalculatorAction.Calculate)
                         xonAction(CalculatorAction.Calculate)
                     }
                 )

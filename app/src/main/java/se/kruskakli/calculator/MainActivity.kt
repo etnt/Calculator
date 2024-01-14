@@ -25,14 +25,10 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             CalculatorTheme(darkTheme = true) {
-                val viewModel = viewModel<CalculatorViewModel>()
-                val state = viewModel.state
                 val xstate = remember { mutableStateOf(CalculateEngine()) }
                 val buttonSpacing = 8.dp
                 Calculator(
-                    state = state,
                     xstate = xstate,
-                    onAction = viewModel::onAction,
                     xonAction = { xstate.value.onAction(it) },
                     buttonSpacing = buttonSpacing,
                     modifier = Modifier
