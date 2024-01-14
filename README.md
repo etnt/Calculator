@@ -17,6 +17,3 @@ Basically what I did:
 <img src="screenshot1.png" alt="Screen1" width="200"/>
 <img src="screenshot2.png" alt="Screen2" width="200"/>
 
-![Screen1](screenshot1.png)
-
-![Screen2](screenshot2.png)
