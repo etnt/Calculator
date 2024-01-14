@@ -16,4 +16,5 @@ Basically what I did:
 
 <img src="screenshot1.png" alt="Screen1" width="200"/>
 <img src="screenshot2.png" alt="Screen2" width="200"/>
+<img src="screenshot3.png" alt="Screen3" width="300"/>
 
